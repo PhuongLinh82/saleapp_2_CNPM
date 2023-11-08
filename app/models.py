@@ -19,14 +19,16 @@ class Product(db.Model):
     category_id = Column(Integer, ForeignKey(Category.id), nullable=False)
 
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     with app.app_context():
-        #c1 = Category(name='Mobile')
-        #c2 = Category(name='Tablet')
+        db.create_all()
 
-        #db.session.add(c1)
-        #db.session.add(c2)
-        #db.session.commit()
+        c1 = Category(name='Mobile')
+        c2 = Category(name='Tablet')
+
+        db.session.add(c1)
+        db.session.add(c2)
+        db.session.commit()
 
         p1 = Product(name='iPhone 13', price=20000000, category_id=1,
                      image='https://res.cloudinary.com/dxxwcby8l/image/upload/v1688179242/hclq65mc6so7vdrbp7hz.jpg')
@@ -45,7 +47,7 @@ if __name__ == '__main__' :
 
         db.session.add_all([p1, p2, p3, p4, p5])
         db.session.commit()
-        #db.create_all()
+
 
 
 
