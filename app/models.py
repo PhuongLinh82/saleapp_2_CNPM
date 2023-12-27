@@ -1,12 +1,14 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from app import db, app
 from flask_login import UserMixin
 import enum
+from datetime import datetime
 
 class UserRoleEnum(enum.Enum):
     USER = 1
     ADMIN = 2
+
 
 class User(db.Model, UserMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -16,6 +18,8 @@ class User(db.Model, UserMixin):
     avatar = Column(String(100),
                     default='https://res.cloudinary.com/dxxwcby8l/image/upload/v1688179242/hclq65mc6so7vdrbp7hz.jpg')
     user_role = Column(Enum(UserRoleEnum), default=UserRoleEnum.USER)
+    receipts = relationship('Product', backref='user', lazy=True)
+
     def __str__(self):
         return self.name
 
@@ -35,6 +39,26 @@ class Product(db.Model):
     price = Column(Float, default=0)
     image = Column(String(100))
     category_id = Column(Integer, ForeignKey(Category.id), nullable=False)
+
+
+class BaseModel(db.Model):
+    __abstract__ = True
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    active = Column(Boolean, default=True)
+    created_date = Column(DateTime, default=datetime.now())
+
+
+class Receipt(BaseModel):
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
+    receipt_data = relationship('ReceiptDetails', backref='receipt', lazy=True)
+
+
+class ReceiptDetails(BaseModel):
+    quantity = Column(Integer, default=0)
+    price = Column(Float, default=0)
+    receipt_id = Column(Integer, ForeignKey(Receipt.id), nullable=False)
+    product_id = Column(Product, ForeignKey(Product.id), nullable=False)
 
 
 if __name__ == '__main__':
